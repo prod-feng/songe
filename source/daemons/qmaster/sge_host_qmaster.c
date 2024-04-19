@@ -1552,7 +1552,7 @@ static int attr_mod_threshold(sge_gdi_ctx_class_t *ctx, lList **alpp, lListElem 
          lList *master_centry_list = *object_type_get_master_list(SGE_TYPE_CENTRY);
 
          lSetList(tmp_elem, EH_resource_utilization, NULL);
-         debit_host_consumable(NULL, tmp_elem, master_centry_list, 0, true, NULL);
+         debit_host_consumable(NULL, tmp_elem, master_centry_list, 0, true, NULL, 0); /*add job_task_id=0*/
          for_each (jep, *(object_type_get_master_list(SGE_TYPE_JOB))) {
             lListElem *jatep = NULL;
 
@@ -1561,6 +1561,8 @@ static int attr_mod_threshold(sge_gdi_ctx_class_t *ctx, lList **alpp, lListElem 
                int slots;
                bool is_master_task = false;
                const void *iterator = NULL;
+               /*add ja_task_id*/
+               u_long32 ja_task_id = lGetUlong(jatep, JAT_task_number);
 
                if (global_host || (lFirst(gdil) == lGetElemHostFirst(gdil, JG_qhostname, host, &iterator))) {
                   is_master_task = true;
@@ -1570,7 +1572,7 @@ static int attr_mod_threshold(sge_gdi_ctx_class_t *ctx, lList **alpp, lListElem 
                   global_host?NULL:host);
             
                if (slots > 0) {
-                  debit_host_consumable(jep, tmp_elem, master_centry_list, slots, is_master_task, NULL);
+                  debit_host_consumable(jep, tmp_elem, master_centry_list, slots, is_master_task, NULL, ja_task_id);
                }
             }
          }

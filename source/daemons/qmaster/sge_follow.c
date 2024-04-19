@@ -488,7 +488,7 @@ sge_follow_order(sge_gdi_ctx_class_t *ctx,
             next_gdil_ep = lNext(gdil_ep);
             if (next_gdil_ep == NULL || strcmp(host_name, lGetHost(next_gdil_ep, JG_qhostname)) != 0) {
                hep = host_list_locate(exec_host_list, host_name);
-               debit_host_consumable(jep, hep, centry_list, host_slots, is_master, &consumables_ok);
+               debit_host_consumable(jep, hep, centry_list, host_slots, is_master, &consumables_ok, 0); /*ja_task_id*/
                if (!consumables_ok) {
                   break;
                }
@@ -506,7 +506,7 @@ sge_follow_order(sge_gdi_ctx_class_t *ctx,
          /* Per host checks were OK? Then check global host. */
          if (consumables_ok) {
             lListElem *global_hep = host_list_locate(exec_host_list, SGE_GLOBAL_NAME);
-            debit_host_consumable(jep, global_hep, centry_list, total_slots, true, &consumables_ok);
+            debit_host_consumable(jep, global_hep, centry_list, total_slots, true, &consumables_ok, 0);
          }
 
          /* Consumable check failed - we cannot start this job! */
@@ -522,6 +522,9 @@ sge_follow_order(sge_gdi_ctx_class_t *ctx,
       /* fill in master_queue */
       lSetString(jatp, JAT_master_queue, lGetString(master_qep, QU_full_name));
       lSetList(jatp, JAT_granted_destin_identifier_list, gdil);
+
+      /*job is now sent and goes into transfering state, from here, to store the info of GPUs*/
+      sge_commit_job(ctx, jep, jatp, NULL, COMMIT_ST_SENT, COMMIT_DEFAULT, monitor);
 
       if (sge_give_job(ctx, jep, jatp, master_qep, pe, master_host, monitor)) {
 
@@ -539,7 +542,7 @@ sge_follow_order(sge_gdi_ctx_class_t *ctx,
 
       /* job is now sent and goes into transfering state */
       /* mode == COMMIT_ST_SENT -> really accept when execd acks */
-      sge_commit_job(ctx, jep, jatp, NULL, COMMIT_ST_SENT, COMMIT_DEFAULT, monitor);
+     // sge_commit_job(ctx, jep, jatp, NULL, COMMIT_ST_SENT, COMMIT_DEFAULT, monitor);
 
       /* now send events and spool the job */
       {

@@ -1352,6 +1352,8 @@ static int debit_all_jobs_from_qs()
       while ((jatep = next_jatep)) {
          bool master_task = true;
          next_jatep = lNext(jatep);
+         /*add ja_task_id*/ 
+         u_long32 ja_task_id = lGetUlong(jatep, JAT_task_number);
 
          /* don't look at states - we only trust in 
             "granted destin. ident. list" */
@@ -1375,10 +1377,10 @@ static int debit_all_jobs_from_qs()
                /* debit in all layers */
                lListElem *rqs = NULL;
                debit_host_consumable(jep, host_list_locate(*object_base[SGE_TYPE_EXECHOST].list,
-                                     "global"), master_centry_list, slots, master_task, NULL);
+                                     "global"), master_centry_list, slots, master_task, NULL, ja_task_id);
                debit_host_consumable(jep, host_list_locate(
                         *object_base[SGE_TYPE_EXECHOST].list, lGetHost(qep, QU_qhostname)),
-                        master_centry_list, slots, master_task, NULL);
+                        master_centry_list, slots, master_task, NULL, ja_task_id);
                qinstance_debit_consumable(qep, jep, master_centry_list, slots, master_task, NULL);
                for_each (rqs, master_rqs_list) {
                   rqs_debit_consumable(rqs, jep, gdi, lGetString(jatep, JAT_granted_pe), master_centry_list, 

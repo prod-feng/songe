@@ -40,6 +40,6 @@ int debit_scheduled_job(const sge_assignment_t *a, int *sort_hostlist, order_t *
 
 int
 debit_host_consumable(lListElem *jep, lListElem *hep, lList *complex_list, int slots,
-                      bool is_master_task, bool *just_check);
+                      bool is_master_task, bool *just_check, u_long32 job_task_id);
 
 #endif /* __DEBIT_H */

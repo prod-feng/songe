@@ -38,6 +38,10 @@
 #include "uti/sge_dstring.h"
 #include "sgeobj/sge_qinstance_QU_L.h"
 
+#include "sge_var_VA_L.h"
+#include "sge_var.h"
+#include "sge_string.h"
+
 /* 
  * Q types values for QU_qtype 
  */
@@ -134,7 +138,7 @@ int queue_reference_list_validate(lList **alpp, lList *qr_list,
 
 int
 rc_debit_consumable(lListElem *jep, lListElem *ep, lList *centry_list, int slots,
-                 int config_nm, int actual_nm, const char *obj_name, bool is_master_task, bool *just_check);
+                 int config_nm, int actual_nm, const char *obj_name, bool is_master_task, bool *just_check, u_long32 ja_task_id);
 
 lListElem *
 explicit_job_request(lListElem *jep, const char *name);
@@ -154,4 +158,11 @@ qinstance_verify_full_name(lList **answer_list, const char *full_name);
 
 void
 qinstance_set_error(lListElem *qinstance, u_long32 type, const char *message, bool set_error);
+
+void
+qinstance_set_gpu_used(lListElem *jep, lListElem *cr, lListElem *cr_config, int debit_slots, u_long32 ja_task_id);
+
+const char*
+qinstance_get_gpu_used(u_long32 job_id, u_long32 ja_task_id, const lListElem *cr);
+ 
 #endif /* __SGE_QINSTANCE_H */

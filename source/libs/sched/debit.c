@@ -63,7 +63,7 @@ debit_job_from_queues(lListElem *job, lList *selected_queue_list, lList *global_
 
 static int
 debit_job_from_hosts(lListElem *job, lList *granted, lList *host_list, lList *complex_list, 
-                     int *sort_hostlist);
+                     int *sort_hostlist, u_long32 ja_task_id);
 
 static int
 debit_job_from_rqs(lListElem *job, lList *granted, lList *rqs_list, lListElem *pe,
@@ -158,7 +158,8 @@ debit_scheduled_job(const sge_assignment_t *a, int *sort_hostlist,
       if (a->pe) {
          pe_debit_slots(a->pe, a->slots, a->job_id);
       }   
-      debit_job_from_hosts(a->job, a->gdil, a->host_list, a->centry_list, sort_hostlist);
+      /* add ja_task_id for hosts */
+      debit_job_from_hosts(a->job, a->gdil, a->host_list, a->centry_list, sort_hostlist, a->ja_task_id);
       debit_job_from_queues(a->job, a->gdil, a->queue_list, a->centry_list, orders);
       debit_job_from_rqs(a->job, a->gdil, a->rqs_list, a->pe, a->centry_list, a->acl_list, a->hgrp_list);
       debit_job_from_ar(a->job, a->gdil, a->ar_list, a->centry_list);
@@ -266,7 +267,8 @@ lListElem *job,     /* JB_Type */
 lList *granted,     /* JG_Type */
 lList *host_list,   /* EH_Type */
 lList *centry_list, /* CE_Type */
-int *sort_hostlist
+int *sort_hostlist,
+u_long32 ja_task_id
 ) {
    lSortOrder *so = NULL;
    lListElem *gel, *hep;
@@ -302,8 +304,8 @@ int *sort_hostlist
          lSetUlong(hep, EH_load_correction_factor, ulc_factor);
       }   
 
-      debit_host_consumable(job, host_list_locate(host_list, "global"), centry_list, slots, master_task, NULL);
-      debit_host_consumable(job, hep, centry_list, slots, master_task, NULL);
+      debit_host_consumable(job, host_list_locate(host_list, "global"), centry_list, slots, master_task, NULL, ja_task_id);
+      debit_host_consumable(job, hep, centry_list, slots, master_task, NULL, ja_task_id);
       master_task = false;
 
       /* compute new combined load for this host and put it into the host */
@@ -336,12 +338,12 @@ int *sort_hostlist
  */
 int 
 debit_host_consumable(lListElem *jep, lListElem *hep, lList *centry_list, int slots,
-                      bool is_master_task, bool *just_check)
+                      bool is_master_task, bool *just_check, u_long32 job_task_id)
 {
    return rc_debit_consumable(jep, hep, centry_list, slots, 
                            EH_consumable_config_list, 
                            EH_resource_utilization, 
-                           lGetHost(hep, EH_name), is_master_task, just_check);
+                           lGetHost(hep, EH_name), is_master_task, just_check, job_task_id);
 }
 
 /****** sge_resource_quota_schedd/debit_job_from_rqs() **********************************

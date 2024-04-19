@@ -538,7 +538,7 @@ void centry_redebit_consumables(sge_gdi_ctx_class_t *ctx, const lList *centries)
    }
    for_each (hep, *object_base[SGE_TYPE_EXECHOST].list) {
       lSetList(hep, EH_resource_utilization, NULL);
-      debit_host_consumable(NULL, hep, master_centry_list, 0, true, NULL);
+      debit_host_consumable(NULL, hep, master_centry_list, 0, true, NULL, 0); /*add job_task_id=0*/
    }
 
    /* 
@@ -554,6 +554,9 @@ void centry_redebit_consumables(sge_gdi_ctx_class_t *ctx, const lList *centries)
          lListElem *gdil;
          lListElem *qep = NULL;
          int slots = 0;
+         /*add ja_task_id*/
+         u_long32 ja_task_id = lGetUlong(jatep, JAT_task_number);
+
          for_each (gdil, lGetList(jatep, JAT_granted_destin_identifier_list)) {
             int qslots;
 
@@ -567,13 +570,13 @@ void centry_redebit_consumables(sge_gdi_ctx_class_t *ctx, const lList *centries)
 
             qslots = lGetUlong(gdil, JG_slots);
             debit_host_consumable(jep, host_list_locate(*object_base[SGE_TYPE_EXECHOST].list,
-                                  lGetHost(qep, QU_qhostname)), master_centry_list, qslots, master_task, NULL);
+                                  lGetHost(qep, QU_qhostname)), master_centry_list, qslots, master_task, NULL, ja_task_id);
             qinstance_debit_consumable(qep, jep, master_centry_list, qslots, master_task, NULL);
             slots += qslots;
             master_task = false;
          }
          debit_host_consumable(jep, host_list_locate(*object_base[SGE_TYPE_EXECHOST].list,
-                               "global"), master_centry_list, slots, true, NULL);
+                               "global"), master_centry_list, slots, true, NULL, ja_task_id);
       }
    }
 
