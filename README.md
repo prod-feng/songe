@@ -9,6 +9,10 @@ Supports seting up hybriding GPU and CPU jobs on the same nodes for resource sha
 Compile tested using the followinf commands:
 
 ```
+#go to the source folder
+
+cd $SGE_CODE/source
+
 ./aimk -no-java -no-jni -no-secure -spool-classic -only-depend -no-qmon -debug
 
 ./scripts/zerodepend
@@ -16,6 +20,21 @@ Compile tested using the followinf commands:
 ./aimk -no-java -no-jni -no-secure -spool-classic  -no-qmon -debug depend
 
 ./aimk -no-java -no-jni -no-secure -spool-classic  -no-qmon -debug
+
+#to install:
+
+export SGE_ROOT=/where/you/want
+
+scripts/distinst -all -local -noexit
+(install both sgemaster and execd, good foe testing)
+
+#debug:
+
+source ./dist/util/dl.sh
+ 
+dl 10
+
+(then restart sgemaster, and/or execd services)
 
 ```
 
