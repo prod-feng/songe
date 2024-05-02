@@ -1,5 +1,5 @@
 # songe
-Son of Grid Engine with GPU support
+### Son of Grid Engine with GPU support
 
 This is based on Son of Grid Engine 8.1.9. Added suppotrs for GPU scheduling, works for 
 searial, paralle, MPI, array jobs.(Check this repository too: https://github.com/prod-feng/sge-gpu/tree/master) 
@@ -37,9 +37,10 @@ dl 10
 (then restart sgemaster, and/or execd services)
 
 ```
+(also see here: https://github.com/prod-feng/sge-gpu/tree/master)
 
-
-To set a hybrid CPU and GPU cluster, simultaneously run CPU jobs and GPUs jobs on the same node, it is possible to reserve 1 CPU core per 1 GPU.
+### To set a hybrid CPU and GPU cluster
+Simultaneously run CPU jobs and GPUs jobs on the same node, one would better to reserve 1 CPU core per 1 GPU.
 The way I do is:(suppose nodeA has 40CPU core, 2 GPUs) (there should be other ways)
 
 1. Define a "rcpus" comsumable:
@@ -115,7 +116,7 @@ NO Guarantee!
 
 ======================================
 
-Update: Oct., 2018 
+### Update: Oct., 2018 
 
 Add patched_files_ge2011.11.p1.0.1.tar.gz .
 
@@ -125,7 +126,7 @@ NO Guarantee!
 
 ======================================
 
-Update: some bug fixes. April, 2018.
+### Update: some bug fixes. April, 2018.
 
 ======================================
 
@@ -133,7 +134,9 @@ This is a package which is designed to enable GPU scheduling capability to GE201
 
 Patch to Son of Grid Engine 8.18 is available too in the following link.
 
-First, recompile and rebuild the source code. Second, you need to set a consumable, named "ngpus"(hard coded in the patched files). And assign value of it to each node. Like the following:
+### First, recompile and rebuild the source code. 
+
+### Second, you need to set a consumable, named "ngpus"(hard coded in the patched files). And assign value of it to each node. Like the following:
 
 >$ qconf -sc
 
@@ -146,7 +149,7 @@ First, recompile and rebuild the source code. Second, you need to set a consumab
 >
 
 
-and,
+### and,
 
 > qconf -se node1
 
@@ -155,7 +158,7 @@ and,
 > complex_values        slots=12,ngpus=2,...
 
 
-When you submit a GPU job, you need to run the command:
+### When you submit a GPU job, you need to run the command:
 
 >qsub -l ngpus=1 ...
 
@@ -164,7 +167,7 @@ This also works for parallel jobs.
 >qsub -pe openmpi 4 -l ngpus=1 ...
 
 
-Here, "-l ngpus=1" request 1 GPU for 1 process.
+### Here, "-l ngpus=1" request 1 GPU for 1 process.
 
 It supports multiple GPU scheduling on multiple nodes for parallel jobs(MPI, etc.) as well. For example, if node1 and node2 each has 4 GPUs installed. On node1, JobA uses GPU0, JobB uses GPU2; on node2, jobC uses GPU 1 and GPU 2. And then JobZ requestes 4 GPUs, the patched SGE can dispatch GPU1 and GPU3 on node1, GPU0 and GPU3 on node2 to JobZ, and set the environment for the job on node1 as:
 
