@@ -138,45 +138,51 @@ Patch to Son of Grid Engine 8.18 is available too in the following link.
 
 ### Second, you need to set a consumable, named "ngpus"(hard coded in the patched files). And assign value of it to each node. Like the following:
 
->$ qconf -sc
+```
+$ qconf -sc
 
->#name               shortcut   type        relop requestable consumable default  urgency 
+#name               shortcut   type        relop requestable consumable default  urgency 
+ ...
+ngpus               gpu        INT         <=    YES         YES        0        5000
 
-> ...
-
-> ngpus               gpu        INT         <=    YES         YES        0        5000
-
->
-
-
+```
 ### and,
 
-> qconf -se node1
+```
+qconf -se node1
+...
+complex_values        slots=12,ngpus=2,...
 
-> ...
-
-> complex_values        slots=12,ngpus=2,...
-
-
+```
 ### When you submit a GPU job, you need to run the command:
 
->qsub -l ngpus=1 ...
-
+```
+qsub -l ngpus=1 ...
+```
 This also works for parallel jobs.
 
->qsub -pe openmpi 4 -l ngpus=1 ...
-
+```
+qsub -pe openmpi 4 -l ngpus=1 ...
+```
 
 ### Here, "-l ngpus=1" request 1 GPU for 1 process.
 
-It supports multiple GPU scheduling on multiple nodes for parallel jobs(MPI, etc.) as well. For example, if node1 and node2 each has 4 GPUs installed. On node1, JobA uses GPU0, JobB uses GPU2; on node2, jobC uses GPU 1 and GPU 2. And then JobZ requestes 4 GPUs, the patched SGE can dispatch GPU1 and GPU3 on node1, GPU0 and GPU3 on node2 to JobZ, and set the environment for the job on node1 as:
+It supports multiple GPU scheduling on multiple nodes for parallel jobs(MPI, etc.) as well. 
 
+For example, if node1 and node2 each has 4 GPUs installed. 
+
+On node1, JobA uses GPU0, JobB uses GPU2; 
+
+On node2, jobC uses GPU 1 and GPU 2. 
+
+And then JobZ requestes 4 GPUs, the patched SGE can dispatch GPU1 and GPU3 on node1, GPU0 and GPU3 on node2 to JobZ, and set the environment for the job on node1 as:
+```
 CUDA_VISIBLE_DEVICES=1,3  (0,2 are alreadt used by jobA and jobB)
-
+```
 and environment for the same job on node2 as:
-
+```
 CUDA_VISIBLE_DEVICES=0,3  (1,2 are already used by jobC)
-
+```
 For non-GPU jobs, CUDA_VISIBLE_DEVICES is set to be empty.
 
 With this patch, you do not need wrapper or load sensor anymore to schedule multiple GPU jobs.
